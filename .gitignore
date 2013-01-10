@@ -1,0 +1,20 @@
+*.class
+
+# Package Files #
+*.war
+*.ear
+
+# build
+out/
+
+# Personal idea files #
+workspace.xml
+tasks.xml
+
+*.log
+*.log.gz
+
+.idea/dictionaries
+
+# .DS_Store for mac #
+.DS_Store
