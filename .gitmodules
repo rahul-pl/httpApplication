@@ -1,0 +1,6 @@
+[submodule "cyclo"]
+	path = cyclo
+	url = git://github.com/kashifrazzaqui/cyclo.git
+[submodule "httpparser"]
+	path = httpparser
+	url = git@github.com:rahul-pl/httpparser.git
