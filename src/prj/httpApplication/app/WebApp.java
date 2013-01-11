@@ -38,6 +38,12 @@ public class WebApp
                         break;
                 }
             }
+
+            @Override
+            public void onSocketClosed()
+            {
+                httpSocket.removeListener(this);
+            }
         });
     }
 }

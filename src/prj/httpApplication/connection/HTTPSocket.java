@@ -17,6 +17,7 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
     private HTTPRequestParser _parser;
     private Agent _agent;
     private final Logger _logger;
+    private boolean _connected;
     private HTTPParserListener _httpParserListener = new HTTPParserListener()
     {
         @Override
@@ -32,12 +33,12 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
             try
             {
                 _agent.send(_socket, "Bad Request");
-                _agent.close(_socket);
             }
             catch (IOException e)
             {
                 _logger.debug("exception while sending/closing socket ", e);
             }
+            close();
         }
     };
 
@@ -45,6 +46,7 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
     {
         _agent = agent;
         _socket = socket;
+        _connected = true;
         _parser = parser;
         _parser.addListener(_httpParserListener);
         _logger = LoggerFactory.getLogger(HTTPSocket.class.getSimpleName());
@@ -63,13 +65,19 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
         }
         catch (IOException e)
         {
+            close();
             _logger.error("sending to socket failed", e);
         }
     }
 
     public void close()
     {
-        _agent.close(_socket);
+        if (_connected)
+        {
+            _connected = false;
+            _agent.close(_socket);
+            fireSocketClosedListener();
+        }
     }
 
     private void fireRequestArrivedListener(RawHTTPRequest request)
@@ -77,6 +85,14 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
         for (HTTPSocketListener l : _listeners)
         {
             l.onRequestArrived(request);
+        }
+    }
+
+    private void fireSocketClosedListener()
+    {
+        for (HTTPSocketListener l : _listeners)
+        {
+            l.onSocketClosed();
         }
     }
 }

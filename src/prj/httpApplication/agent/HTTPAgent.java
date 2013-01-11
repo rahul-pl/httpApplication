@@ -71,4 +71,17 @@ public class HTTPAgent extends Agent
     {
         _logger.debug("registration failed for httpAgent on port " + _port);
     }
+
+    @Override
+    public void close(Socket socket)
+    {
+        super.close(socket);
+        _sockets.remove(socket);
+    }
+
+    @Override
+    public void onClose(Socket socket)
+    {
+        _sockets.remove(socket).close();
+    }
 }
