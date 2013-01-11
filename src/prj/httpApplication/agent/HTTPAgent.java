@@ -35,7 +35,6 @@ public class HTTPAgent extends Agent
     @Override
     public void connectionMade(Socket socket)
     {
-        _logger.debug("connection made from socket " + socket);
     }
 
     @Override
@@ -53,8 +52,6 @@ public class HTTPAgent extends Agent
     @Override
     public void receive(Socket socket, byte[] incomingData)
     {
-        _logger.debug("data came from socket " + socket);
-        _logger.info((new String(incomingData)).replace("\r", "\\r").replace("\t", "\\t").replace("\n", "\\n"));
         getSocket(socket).parse(new String(incomingData));
     }
 
