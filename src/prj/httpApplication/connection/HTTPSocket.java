@@ -3,7 +3,7 @@ package prj.httpApplication.connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import prj.cyclo.Agent;
-import prj.httpparser.httpparser.HTTPParser;
+import prj.httpparser.httpparser.HTTPRequestParser;
 import prj.httpparser.httpparser.HTTPParserListener;
 import prj.httpparser.httpparser.RawHTTPRequest;
 import prj.httpparser.utils.EventSource;
@@ -14,7 +14,7 @@ import java.net.Socket;
 public class HTTPSocket extends EventSource<HTTPSocketListener>
 {
     private Socket _socket;
-    private HTTPParser _parser;
+    private HTTPRequestParser _parser;
     private Agent _agent;
     private final Logger _logger;
     private HTTPParserListener _httpParserListener = new HTTPParserListener()
@@ -36,12 +36,12 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
             }
             catch (IOException e)
             {
-                e.printStackTrace();
+                _logger.debug("exception while sending/closing socket ", e);
             }
         }
     };
 
-    public HTTPSocket(Agent agent, Socket socket, HTTPParser parser)
+    public HTTPSocket(Agent agent, Socket socket, HTTPRequestParser parser)
     {
         _agent = agent;
         _socket = socket;
