@@ -5,13 +5,20 @@ import prj.httpApplication.RawHTTPResponse;
 
 public abstract class HTTPRequestHandler
 {
+    private final RawHTTPResponse pageNotFoundResponse = new RawHTTPResponse("HTTP/1.0", 404, "Not Found")
+    {
+        {
+            setBody("Page Not Found");
+        }
+    };
+
     public RawHTTPResponse get(RawHTTPRequest request)
     {
-        return new RawHTTPResponse("HTTP/1.0", 405, "This method is not allowed");
+        return pageNotFoundResponse;
     }
 
     public RawHTTPResponse post(RawHTTPRequest request)
     {
-        return new RawHTTPResponse("HTTP/1.0", 405, "This method is not allowed");
+        return pageNotFoundResponse;
     }
 }
