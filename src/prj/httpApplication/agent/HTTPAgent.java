@@ -82,6 +82,10 @@ public class HTTPAgent extends Agent
     @Override
     public void onClose(Socket socket)
     {
-        _sockets.remove(socket).close();
+        HTTPSocket httpSocket = _sockets.remove(socket);
+        if (httpSocket != null)
+        {
+            httpSocket.close();
+        }
     }
 }
