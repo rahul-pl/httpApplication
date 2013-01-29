@@ -23,9 +23,10 @@ public class HTTPAgent extends Agent
     private Logger _logger;
     private WebApp _application;
 
-    public HTTPAgent(TCPReactor reactor, WebApp application)
+    public HTTPAgent(TCPReactor reactor, WebApp application, int port)
     {
         super(reactor);
+        _port = port;
         _socketFactory = new HTTPSocketFactory(this);
         _sockets = new HashMap<>();
         _application = application;
