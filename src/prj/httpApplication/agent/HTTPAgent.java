@@ -19,7 +19,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public class HTTPAgent extends Agent
 {
     private int _port = 8080;
-    private final HTTPSocketFactory _socketFactory;
+    private HTTPSocketFactory _socketFactory;
     private Map<Socket, HTTPSocket> _sockets;
     private Logger _logger;
     private WebApp _application;
@@ -27,26 +27,21 @@ public class HTTPAgent extends Agent
     public HTTPAgent(TCPReactor reactor, WebApp application, int port)
     {
         super(reactor);
-        _port = port;
-        _socketFactory = new HTTPSocketFactory(this);
-        _sockets = new HashMap<>();
-        _application = application;
-        _logger = LoggerFactory.getLogger(HTTPAgent.class.getSimpleName());
+        init(application, port);
     }
 
     public HTTPAgent(TCPReactor reactor, WebApp application, int port, ScheduledThreadPoolExecutor executor)
     {
         super(reactor, executor);
-        _port = port;
-        _socketFactory = new HTTPSocketFactory(this);
-        _sockets = new HashMap<>();
-        _application = application;
-        _logger = LoggerFactory.getLogger(HTTPAgent.class.getSimpleName());
+        init(application, port);
     }
 
     @Override
     public void connectionMade(Socket socket)
     {
+        HTTPSocket httpSocket = _socketFactory.newSocket(socket);
+        _sockets.put(socket, httpSocket);
+        _application.clientConnected(httpSocket);
     }
 
     @Override
@@ -64,24 +59,21 @@ public class HTTPAgent extends Agent
     @Override
     public void receive(Socket socket, byte[] incomingData)
     {
-        getSocket(socket).parse(new String(incomingData));
-    }
-
-    private HTTPSocket getSocket(Socket socket)
-    {
-        HTTPSocket httpSocket;
-        if ((httpSocket = _sockets.get(socket)) == null)
+        HTTPSocket httpSocket = _sockets.get(socket);
+        if (httpSocket == null)
         {
-            _sockets.put(socket, (httpSocket = _socketFactory.newSocket(socket)));
-            _application.clientConnected(httpSocket);
+            _logger.error("no http socket to handle info from {}", socket);
         }
-        return httpSocket;
+        else
+        {
+            httpSocket.parse(new String(incomingData));
+        }
     }
 
     @Override
     public void registrationFailed(IOException e)
     {
-        _logger.debug("registration failed for httpAgent on port " + _port);
+        _logger.error("registration failed for httpAgent on port " + _port);
     }
 
     @Override
@@ -100,4 +92,15 @@ public class HTTPAgent extends Agent
             httpSocket.close();
         }
     }
+
+    private void init(WebApp application, int port)
+    {
+        _port = port;
+        _socketFactory = new HTTPSocketFactory(this);
+        _sockets = new HashMap<>();
+        _application = application;
+        _application.setExecutor(_agency);
+        _logger = LoggerFactory.getLogger(HTTPAgent.class.getSimpleName());
+    }
+
 }
