@@ -3,24 +3,25 @@ package prj.httpApplication.app;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import prj.httpApplication.RawHTTPResponse;
-import prj.httpparser.httpparser.RawHTTPRequest;
 import prj.httpApplication.connection.HTTPSocket;
 import prj.httpApplication.connection.HTTPSocketListener;
+import prj.httpparser.httpparser.RawHTTPRequest;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 
 public class WebApp
 {
     private static final int SOCKET_TIMEOUT_IN_SECONDS = 10;
     public Router _router;
-    private ExecutorService _executor;
-    private ScheduledExecutorService _timeoutScheduler;
+    private ScheduledExecutorService _executor;
     private Logger _logger = LoggerFactory.getLogger(WebApp.class);
 
     public WebApp(Router router)
     {
         _router = router;
-        _timeoutScheduler = Executors.newScheduledThreadPool(2);
     }
 
     public void registerHandler(String pattern, HTTPRequestHandler handler)
@@ -67,7 +68,7 @@ public class WebApp
 
     private ScheduledFuture<?> setTimeoutForSocket(final HTTPSocket httpSocket)
     {
-        return _timeoutScheduler.schedule(new Runnable()
+        return _executor.schedule(new Runnable()
         {
             @Override
             public void run()
@@ -90,8 +91,6 @@ public class WebApp
                 }
             }
         }, SOCKET_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-
-
     }
 
     private void closeSocket(HTTPSocket httpSocket)
@@ -99,7 +98,7 @@ public class WebApp
         httpSocket.close();
     }
 
-    public void setExecutor(final ExecutorService executorService)
+    public void setExecutor(final ScheduledExecutorService executorService)
     {
         _executor = executorService;
     }
