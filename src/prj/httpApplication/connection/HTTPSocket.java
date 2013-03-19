@@ -29,16 +29,7 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
         @Override
         public void onHttpRequestError()
         {
-            _logger.info("HTTP Request Error");
-            try
-            {
-                _agent.send(_socket, "Bad Request");
-            }
-            catch (IOException e)
-            {
-                _logger.debug("exception while sending/closing socket ", e);
-            }
-            close();
+            fireRequestErrorListener();
         }
     };
 
@@ -95,5 +86,12 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
             l.onSocketClosed();
         }
     }
-}
 
+    private void fireRequestErrorListener()
+    {
+        for (HTTPSocketListener l : _listeners)
+        {
+            l.onRequestError();
+        }
+    }
+}
