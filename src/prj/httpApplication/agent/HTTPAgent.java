@@ -7,6 +7,7 @@ import prj.cyclo.TCPReactor;
 import prj.httpApplication.app.WebApp;
 import prj.httpApplication.connection.HTTPSocket;
 import prj.httpApplication.connection.HTTPSocketFactory;
+import prj.httpApplication.utils.ConcurrencyUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -99,7 +100,7 @@ public class HTTPAgent extends Agent
         _socketFactory = new HTTPSocketFactory(this);
         _sockets = new HashMap<>();
         _application = application;
-        _application.setExecutor(_agency);
         _logger = LoggerFactory.getLogger(HTTPAgent.class.getSimpleName());
+        ConcurrencyUtils.initialize(_agency);
     }
 }

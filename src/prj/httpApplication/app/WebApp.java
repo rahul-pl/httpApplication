@@ -5,18 +5,16 @@ import org.slf4j.LoggerFactory;
 import prj.httpApplication.RawHTTPResponse;
 import prj.httpApplication.connection.HTTPSocket;
 import prj.httpApplication.connection.HTTPSocketListener;
+import prj.httpApplication.utils.ConcurrencyUtils;
 import prj.httpparser.httpparser.RawHTTPRequest;
 
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
 
 public class WebApp
 {
     private static final int SOCKET_TIMEOUT_IN_SECONDS = 10;
     public Router _router;
-    private ScheduledExecutorService _executor;
     private Logger _logger = LoggerFactory.getLogger(WebApp.class);
 
     public WebApp(Router router)
@@ -68,38 +66,21 @@ public class WebApp
 
     private ScheduledFuture<?> setTimeoutForSocket(final HTTPSocket httpSocket)
     {
-        return _executor.schedule(new Runnable()
+        Runnable runnable = new Runnable()
         {
             @Override
             public void run()
             {
-                if (_executor != null)
-                {
-                    _executor.submit(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            _logger.warn("Closing socket due to timeout {}", httpSocket);
-                            closeSocket(httpSocket);
-                        }
-                    });
-                }
-                else
-                {
-                    closeSocket(httpSocket);
-                }
+                _logger.warn("Closing socket due to timeout {}", httpSocket);
+                closeSocket(httpSocket);
             }
-        }, SOCKET_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        };
+        ConcurrencyUtils concurrencyUtils = ConcurrencyUtils.getInstance();
+        return concurrencyUtils.scheduleRunnable(runnable, SOCKET_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     private void closeSocket(HTTPSocket httpSocket)
     {
         httpSocket.close();
-    }
-
-    public void setExecutor(final ScheduledExecutorService executorService)
-    {
-        _executor = executorService;
     }
 }
