@@ -102,5 +102,4 @@ public class HTTPAgent extends Agent
         _application.setExecutor(_agency);
         _logger = LoggerFactory.getLogger(HTTPAgent.class.getSimpleName());
     }
-
 }

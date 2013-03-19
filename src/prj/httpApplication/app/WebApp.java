@@ -2,9 +2,10 @@ package prj.httpApplication.app;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import prj.httpApplication.RawHTTPResponse;
+import prj.httpparser.httpparser.RawHTTPRequest;
 import prj.httpApplication.connection.HTTPSocket;
 import prj.httpApplication.connection.HTTPSocketListener;
-import prj.httpparser.httpparser.RawHTTPRequest;
 
 import java.util.concurrent.*;
 
@@ -48,6 +49,12 @@ public class WebApp
                         closeSocket(httpSocket);
                         break;
                 }
+            }
+
+            @Override
+            public void onRequestError()
+            {
+                httpSocket.send(new RawHTTPResponse("HTTP/1.1", 400, "Bad Request").toString());
             }
 
             @Override
