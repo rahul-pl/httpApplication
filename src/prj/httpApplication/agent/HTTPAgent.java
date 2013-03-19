@@ -14,67 +14,39 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class HTTPAgent extends Agent
 {
     private int _port = 8080;
-    private int _socketTimeOutInSeconds = 3;
     private final HTTPSocketFactory _socketFactory;
-    private Map<Socket, ScheduledFuture> _cancellableFutures;
     private Map<Socket, HTTPSocket> _sockets;
     private Logger _logger;
     private WebApp _application;
 
-    public HTTPAgent(TCPReactor reactor, WebApp application, int port, int socketTimeOutInSeconds)
+    public HTTPAgent(TCPReactor reactor, WebApp application, int port)
     {
         super(reactor);
         _port = port;
-        _socketTimeOutInSeconds = socketTimeOutInSeconds;
         _socketFactory = new HTTPSocketFactory(this);
         _sockets = new HashMap<>();
-        _cancellableFutures = new HashMap<>();
         _application = application;
         _logger = LoggerFactory.getLogger(HTTPAgent.class.getSimpleName());
     }
 
-    public HTTPAgent(TCPReactor reactor, WebApp application, int port, int socketTimeOutInSeconds, ScheduledThreadPoolExecutor executor)
+    public HTTPAgent(TCPReactor reactor, WebApp application, int port, ScheduledThreadPoolExecutor executor)
     {
         super(reactor, executor);
         _port = port;
-        _socketTimeOutInSeconds = socketTimeOutInSeconds;
         _socketFactory = new HTTPSocketFactory(this);
         _sockets = new HashMap<>();
-        _cancellableFutures = new HashMap<>();
         _application = application;
         _logger = LoggerFactory.getLogger(HTTPAgent.class.getSimpleName());
     }
 
     @Override
-    public void connectionMade(final Socket socket)
+    public void connectionMade(Socket socket)
     {
-        if (_socketTimeOutInSeconds > 0)
-        {
-            ScheduledFuture future = _agency.schedule(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        socket.close();
-                    }
-                    catch (IOException e)
-                    {
-                        _logger.warn("exception while closing socket", e);
-                    }
-                    _cancellableFutures.remove(socket);
-                }
-            }, _socketTimeOutInSeconds, TimeUnit.SECONDS);
-            _cancellableFutures.put(socket, future);
-        }
     }
 
     @Override
@@ -100,11 +72,6 @@ public class HTTPAgent extends Agent
         HTTPSocket httpSocket;
         if ((httpSocket = _sockets.get(socket)) == null)
         {
-            if (_cancellableFutures.containsKey(socket))
-            {
-                _cancellableFutures.get(socket).cancel(true);
-                _cancellableFutures.remove(socket);
-            }
             _sockets.put(socket, (httpSocket = _socketFactory.newSocket(socket)));
             _application.clientConnected(httpSocket);
         }
@@ -134,4 +101,3 @@ public class HTTPAgent extends Agent
         }
     }
 }
-
