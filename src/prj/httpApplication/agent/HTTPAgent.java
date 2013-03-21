@@ -100,4 +100,10 @@ public class HTTPAgent extends Agent
             httpSocket.close();
         }
     }
+
+    @Override
+    public void onShutdown()
+    {
+        //TODO: Handle Server Shutdown
+    }
 }
