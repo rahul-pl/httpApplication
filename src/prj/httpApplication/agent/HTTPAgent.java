@@ -103,4 +103,10 @@ public class HTTPAgent extends Agent
         _logger = LoggerFactory.getLogger(HTTPAgent.class.getSimpleName());
         ConcurrencyUtils.initialize(_agency);
     }
+
+//    @Override
+//    public void onShutdown()
+//    {
+//        //TODO: Handle Server Shutdown
+//    }
 }
