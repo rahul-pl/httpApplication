@@ -6,5 +6,7 @@ public interface HTTPSocketListener
 {
     public void onRequestArrived(RawHTTPRequest request);
 
-    void onSocketClosed();
+    public void onRequestError();
+
+    public void onSocketClosed();
 }
