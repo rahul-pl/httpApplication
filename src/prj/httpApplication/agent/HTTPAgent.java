@@ -104,9 +104,9 @@ public class HTTPAgent extends Agent
         ConcurrencyUtils.initialize(_agency);
     }
 
-//    @Override
-//    public void onShutdown()
-//    {
-//        //TODO: Handle Server Shutdown
-//    }
+    @Override
+    public void onShutdown()
+    {
+        //TODO: Handle Server Shutdown
+    }
 }
