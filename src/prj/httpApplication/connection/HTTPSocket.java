@@ -3,8 +3,8 @@ package prj.httpApplication.connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import prj.cyclo.Agent;
+import prj.httpparser.httpparser.HTTPRequestListener;
 import prj.httpparser.httpparser.HTTPRequestParser;
-import prj.httpparser.httpparser.HTTPParserListener;
 import prj.httpparser.httpparser.RawHTTPRequest;
 import prj.httpparser.utils.EventSource;
 
@@ -18,7 +18,7 @@ public class HTTPSocket extends EventSource<HTTPSocketListener>
     private Agent _agent;
     private final Logger _logger;
     private boolean _connected;
-    private HTTPParserListener _httpParserListener = new HTTPParserListener()
+    private HTTPRequestListener _httpParserListener = new HTTPRequestListener()
     {
         @Override
         public void onHttpRequest(RawHTTPRequest request)
