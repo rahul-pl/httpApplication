@@ -54,6 +54,7 @@ public class WebApp
             public void onRequestError()
             {
                 httpSocket.send(new RawHTTPResponse("HTTP/1.1", 400, "Bad Request").toString());
+                closeSocket(httpSocket);
             }
 
             @Override
